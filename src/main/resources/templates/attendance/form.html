@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head th:replace="~{fragments/layout :: head(${isEdit ? 'Sửa Chấm Công' : 'Thêm Chấm Công'})}"></head>
+<body>
+
+<th:block th:replace="~{fragments/layout :: sidebar('attendance')}"></th:block>
+
+<div class="main-wrapper">
+  <th:block th:replace="~{fragments/layout :: topbar(${isEdit ? 'Cập Nhật Chấm Công' : 'Thêm Chấm Công'})}"></th:block>
+
+  <div class="main-content">
+    <div class="row justify-content-center">
+      <div class="col-xl-7">
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+          <i class="fas fa-exclamation-circle me-2"></i><span th:text="${error}"></span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="card">
+          <div class="card-header py-3">
+            <i th:class="${isEdit} ? 'fas fa-edit me-2 text-primary' : 'fas fa-clock me-2 text-success'"></i>
+            <span th:text="${isEdit} ? 'Cập Nhật Chấm Công' : 'Chấm Công Mới'"></span>
+          </div>
+          <div class="card-body p-4">
+            <form th:action="${isEdit} ? @{/attendance/{id}/edit(id=${attendance.id})} : @{/attendance/new}"
+                  th:object="${attendance}" method="post">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label fw-semibold">Nhân Viên <span class="text-danger">*</span></label>
+                  <select name="employeeId" class="form-select" required>
+                    <option value="">-- Chọn nhân viên --</option>
+                    <option th:each="emp : ${employees}"
+                            th:value="${emp.id}"
+                            th:text="${emp.employeeCode + ' - ' + emp.fullName}"
+                            th:selected="${attendance.employee != null && attendance.employee.id == emp.id}">-</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Ngày <span class="text-danger">*</span></label>
+                  <input type="date" th:field="*{date}" class="form-control" required/>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Trạng Thái <span class="text-danger">*</span></label>
+                  <select th:field="*{status}" class="form-select" required>
+                    <option value="PRESENT">Có mặt</option>
+                    <option value="ABSENT">Vắng</option>
+                    <option value="LATE">Đi muộn</option>
+                    <option value="LEAVE">Nghỉ phép</option>
+                    <option value="HALF_DAY">Nửa ngày</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Giờ Vào</label>
+                  <input type="time" th:field="*{checkIn}" class="form-control"/>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Giờ Ra</label>
+                  <input type="time" th:field="*{checkOut}" class="form-control"/>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label fw-semibold">Ghi Chú</label>
+                  <textarea th:field="*{note}" class="form-control" rows="3"
+                            placeholder="Ghi chú (lý do vắng, muộn...)"></textarea>
+                </div>
+              </div>
+
+              <hr class="my-4"/>
+              <div class="d-flex justify-content-end gap-2">
+                <a th:href="@{/attendance}" class="btn btn-outline-secondary">
+                  <i class="fas fa-arrow-left me-1"></i>Quay Lại
+                </a>
+                <button type="submit" class="btn btn-coffee">
+                  <i class="fas fa-save me-1"></i>
+                  <span th:text="${isEdit} ? 'Lưu Thay Đổi' : 'Lưu Chấm Công'"></span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

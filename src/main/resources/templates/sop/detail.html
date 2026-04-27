@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head th:replace="~{fragments/layout :: head('SOP Chi Tiết')}"></head>
+<body>
+
+<th:block th:replace="~{fragments/layout :: sidebar('sop')}"></th:block>
+
+<div class="main-wrapper">
+  <th:block th:replace="~{fragments/layout :: topbar('SOP Chế Biến')}"></th:block>
+
+  <div class="main-content">
+
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+      <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Header -->
+    <div class="card mb-4">
+      <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <div style="width:56px;height:56px;border-radius:14px;background:#fdf8f4;border:2px solid #d4a574;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-mug-hot" style="color:#6f4e37;font-size:1.4rem;"></i>
+          </div>
+          <div>
+            <h5 class="mb-0 fw-bold" th:text="${menuItem.name}">Tên Món</h5>
+            <div class="text-muted small">
+              <span th:if="${menuItem.category != null}" th:text="${menuItem.category.name}">-</span>
+              &nbsp;·&nbsp;
+              <span th:text="${#numbers.formatDecimal(menuItem.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">-</span>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <a th:href="@{/menu/items/{id}/edit(id=${menuItem.id})}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-edit me-1"></i>Sửa Món
+          </a>
+          <a th:href="@{/sop/item/{id}/new(id=${menuItem.id})}" class="btn btn-coffee btn-sm">
+            <i class="fas fa-plus me-1"></i>Thêm Bước SOP
+          </a>
+          <a th:href="@{/sop}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Quay Lại
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOP Steps -->
+    <div th:if="${sops.isEmpty()}" class="card">
+      <div class="card-body text-center py-5 text-muted">
+        <i class="fas fa-clipboard fa-3x mb-3 d-block"></i>
+        <p>Chưa có quy trình SOP nào cho món này.</p>
+        <a th:href="@{/sop/item/{id}/new(id=${menuItem.id})}" class="btn btn-coffee">
+          <i class="fas fa-plus me-2"></i>Thêm Bước Đầu Tiên
+        </a>
+      </div>
+    </div>
+
+    <div th:unless="${sops.isEmpty()}" class="position-relative">
+      <div th:each="sop, stat : ${sops}" class="d-flex gap-3 mb-3">
+        <!-- Step indicator -->
+        <div class="d-flex flex-column align-items-center">
+          <div style="width:44px;height:44px;border-radius:50%;background:#6f4e37;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0;"
+               th:text="${sop.stepOrder}">1</div>
+          <div th:unless="${stat.last}" style="width:2px;flex:1;background:#d4a574;margin:4px 0;min-height:24px;"></div>
+        </div>
+        <!-- Step card -->
+        <div class="card flex-fill mb-0">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+              <h6 class="fw-bold mb-1 text-dark" th:text="${sop.title}">Tiêu đề bước</h6>
+              <div class="d-flex gap-1">
+                <a th:href="@{/sop/{id}/edit(id=${sop.id})}" class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-edit"></i>
+                </a>
+                <button class="btn btn-sm btn-outline-danger"
+                        data-bs-toggle="modal" data-bs-target="#deleteModal"
+                        th:attr="data-id=${sop.id}"
+                        onclick="setDeleteTarget(this)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            <p class="text-muted mb-2" style="white-space:pre-line;" th:text="${sop.content}">Nội dung...</p>
+            <small class="text-muted">
+              <i class="fas fa-clock me-1"></i>
+              Cập nhật: <span th:text="${sop.updatedDate != null ? #temporals.format(sop.updatedDate,'dd/MM/yyyy HH:mm') : ''}">-</span>
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-danger"><i class="fas fa-trash me-2"></i>Xóa Bước SOP</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">Bạn có chắc muốn xóa bước SOP này?</div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+        <form id="deleteForm" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <button type="submit" class="btn btn-danger">Xóa</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+<script>
+  function setDeleteTarget(btn) {
+    document.getElementById('deleteForm').action = '/sop/' + btn.dataset.id + '/delete';
+  }
+</script>
+</body>
+</html>

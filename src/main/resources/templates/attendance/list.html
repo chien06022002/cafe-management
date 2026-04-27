@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head th:replace="~{fragments/layout :: head('Chấm Công')}"></head>
+<body>
+
+<th:block th:replace="~{fragments/layout :: sidebar('attendance')}"></th:block>
+
+<div class="main-wrapper">
+  <th:block th:replace="~{fragments/layout :: topbar('Quản Lý Chấm Công')}"></th:block>
+
+  <div class="main-content">
+
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+      <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+      <i class="fas fa-exclamation-circle me-2"></i><span th:text="${error}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="card">
+      <div class="card-header py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span><i class="fas fa-calendar-check me-2 text-primary"></i>Bảng Chấm Công</span>
+        <div class="d-flex gap-2 flex-wrap">
+          <form th:action="@{/attendance}" method="get" class="d-flex gap-2 flex-wrap">
+            <select name="employeeId" class="form-select form-select-sm" style="min-width:180px;">
+              <option value="">-- Tất cả nhân viên --</option>
+              <option th:each="emp : ${employees}" th:value="${emp.id}" th:text="${emp.fullName}"
+                      th:selected="${selectedEmployeeId != null && selectedEmployeeId == emp.id}">-</option>
+            </select>
+            <input type="date" name="date" class="form-control form-control-sm"
+                   th:value="${#temporals.format(selectedDate,'yyyy-MM-dd')}"/>
+            <button type="submit" class="btn btn-sm btn-outline-secondary">
+              <i class="fas fa-filter me-1"></i>Lọc
+            </button>
+          </form>
+          <a th:href="@{/attendance/new}" class="btn btn-sm btn-coffee">
+            <i class="fas fa-plus me-1"></i>Chấm Công
+          </a>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div th:if="${attendances.isEmpty()}" class="text-center py-5 text-muted">
+          <i class="fas fa-calendar-times fa-3x mb-3 d-block"></i>
+          Không có dữ liệu chấm công
+        </div>
+        <div th:unless="${attendances.isEmpty()}" class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th class="ps-4">Nhân Viên</th>
+                <th>Bộ Phận</th>
+                <th>Ngày</th>
+                <th>Giờ Vào</th>
+                <th>Giờ Ra</th>
+                <th>Trạng Thái</th>
+                <th>Ghi Chú</th>
+                <th class="text-center">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="att : ${attendances}">
+                <td class="ps-4 fw-medium" th:text="${att.employee.fullName}">-</td>
+                <td class="text-muted" th:text="${att.employee.department}">-</td>
+                <td th:text="${#temporals.format(att.date,'dd/MM/yyyy')}">-</td>
+                <td th:text="${att.checkIn != null ? #temporals.format(att.checkIn,'HH:mm') : '--:--'}">-</td>
+                <td th:text="${att.checkOut != null ? #temporals.format(att.checkOut,'HH:mm') : '--:--'}">-</td>
+                <td>
+                  <span class="badge rounded-pill px-3"
+                        th:classappend="${att.status == 'PRESENT'} ? 'bg-success' : (${att.status == 'ABSENT'} ? 'bg-danger' : (${att.status == 'LATE'} ? 'bg-warning text-dark' : (${att.status == 'LEAVE'} ? 'bg-info' : 'bg-secondary')))"
+                        th:text="${att.status == 'PRESENT'} ? 'Có mặt' : (${att.status == 'ABSENT'} ? 'Vắng' : (${att.status == 'LATE'} ? 'Muộn' : (${att.status == 'LEAVE'} ? 'Nghỉ phép' : 'Nửa ngày')))">
+                  </span>
+                </td>
+                <td class="text-muted" th:text="${att.note ?: ''}">-</td>
+                <td class="text-center">
+                  <a th:href="@{/attendance/{id}/edit(id=${att.id})}" class="btn btn-sm btn-outline-primary me-1">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <button class="btn btn-sm btn-outline-danger"
+                          data-bs-toggle="modal" data-bs-target="#deleteModal"
+                          th:attr="data-id=${att.id}"
+                          onclick="setDeleteTarget(this)">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-danger"><i class="fas fa-trash me-2"></i>Xác Nhận Xóa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">Bạn có chắc muốn xóa bản ghi chấm công này?</div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+        <form id="deleteForm" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <button type="submit" class="btn btn-danger">Xóa</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+<script>
+  function setDeleteTarget(btn) {
+    document.getElementById('deleteForm').action = '/attendance/' + btn.dataset.id + '/delete';
+  }
+</script>
+</body>
+</html>
