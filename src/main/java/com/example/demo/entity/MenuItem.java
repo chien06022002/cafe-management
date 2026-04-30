@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,6 +27,7 @@ public class MenuItem {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
 
+    @JsonIgnoreProperties({"menuItems", "cafe", "hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
@@ -36,6 +38,10 @@ public class MenuItem {
     @Column(nullable = false)
     private boolean available = true;
 
+    @Column(nullable = false)
+    private boolean bestSeller = false;
+
+    @JsonIgnoreProperties({"menuItem"})
     @OneToMany(mappedBy = "menuItem", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("stepOrder ASC")
     private List<Sop> sops;

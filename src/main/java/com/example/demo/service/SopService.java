@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.sop.SopDto;
 import com.example.demo.entity.MenuItem;
 import com.example.demo.entity.Sop;
 import com.example.demo.repository.MenuItemRepository;
@@ -43,5 +44,26 @@ public class SopService {
     public int getNextStepOrder(Long menuItemId) {
         List<Sop> sops = sopRepository.findByMenuItemId(menuItemId);
         return sops.stream().mapToInt(Sop::getStepOrder).max().orElse(0) + 1;
+    }
+
+    // ── DTO mapper ──
+
+    public SopDto toDto(Sop sop) {
+        if (sop == null) return null;
+        MenuItem item = sop.getMenuItem();
+        return new SopDto(
+                sop.getId(),
+                item != null ? item.getId() : null,
+                item != null ? item.getName() : null,
+                sop.getTitle(),
+                sop.getContent(),
+                sop.getStepOrder(),
+                sop.getCreatedDate() != null ? sop.getCreatedDate().toString() : null,
+                sop.getUpdatedDate() != null ? sop.getUpdatedDate().toString() : null
+        );
+    }
+
+    public List<SopDto> toDtoList(List<Sop> list) {
+        return list.stream().map(this::toDto).toList();
     }
 }

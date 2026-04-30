@@ -1,5 +1,7 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,6 +13,7 @@ import java.util.List;
 @Table(name = "shifts")
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Shift {
 
     @Id
@@ -36,6 +39,7 @@ public class Shift {
     @JoinColumn(name = "cafe_id")
     private Cafe cafe;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "shift", cascade = CascadeType.ALL)
     private List<ShiftAssignment> assignments;
 

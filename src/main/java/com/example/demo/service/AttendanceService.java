@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.attendance.AttendanceDto;
+import com.example.demo.dto.common.EmployeeSummaryDto;
 import com.example.demo.entity.Attendance;
 import com.example.demo.entity.Cafe;
 import com.example.demo.entity.Employee;
@@ -64,5 +66,32 @@ public class AttendanceService {
 
     public boolean existsByEmployeeAndDate(Employee employee, LocalDate date) {
         return attendanceRepository.findByEmployeeAndDate(employee, date).isPresent();
+    }
+
+    // ── DTO mapper ──
+
+    public AttendanceDto toDto(Attendance a) {
+        if (a == null) return null;
+        Employee emp = a.getEmployee();
+        EmployeeSummaryDto empDto = emp == null ? null : new EmployeeSummaryDto(
+                emp.getId(),
+                emp.getEmployeeCode(),
+                emp.getFullName(),
+                emp.getPosition() != null ? emp.getPosition() : "",
+                emp.getAvatarUrl() != null ? emp.getAvatarUrl() : ""
+        );
+        return new AttendanceDto(
+                a.getId(),
+                empDto,
+                a.getDate() != null ? a.getDate().toString() : "",
+                a.getCheckIn() != null ? a.getCheckIn().toString() : null,
+                a.getCheckOut() != null ? a.getCheckOut().toString() : null,
+                a.getStatus(),
+                a.getNote()
+        );
+    }
+
+    public java.util.List<AttendanceDto> toDtoList(java.util.List<Attendance> list) {
+        return list.stream().map(this::toDto).toList();
     }
 }

@@ -8,13 +8,23 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
   <style>
     body {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
       min-height: 100vh; display: flex; align-items: center; justify-content: center;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Segoe UI', sans-serif; position: relative; overflow: hidden;
+    }
+    .bg-image {
+      position: fixed; inset: 0; z-index: 0;
+      background: url('https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1920&q=80') center/cover no-repeat;
+      filter: blur(4px) brightness(0.5);
+      transform: scale(1.05);
+    }
+    .bg-overlay {
+      position: fixed; inset: 0; z-index: 1;
+      background: rgba(0,0,0,0.45);
     }
     .login-card {
+      position: relative; z-index: 2;
       background: #fff; border-radius: 20px; padding: 48px 42px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.4); width: 100%; max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5); width: 100%; max-width: 420px;
     }
     .login-logo { text-align: center; margin-bottom: 32px; }
     .login-logo .icon { font-size: 3rem; color: #6f4e37; }
@@ -40,6 +50,8 @@
   </style>
 </head>
 <body>
+<div class="bg-image"></div>
+<div class="bg-overlay"></div>
 <div class="login-card">
   <div class="login-logo">
     <div class="icon"><i class="fas fa-mug-hot"></i></div>

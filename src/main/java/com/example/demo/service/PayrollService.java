@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.common.EmployeeSummaryDto;
+import com.example.demo.dto.payroll.PayrollDto;
 import com.example.demo.entity.Attendance;
 import com.example.demo.entity.Cafe;
 import com.example.demo.entity.Employee;
@@ -125,5 +127,43 @@ public class PayrollService {
         return list.stream()
                 .map(Payroll::getNetSalary)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    // ── DTO mapper ──
+
+    public PayrollDto toDto(Payroll p) {
+        if (p == null) return null;
+        Employee emp = p.getEmployee();
+        EmployeeSummaryDto empDto = emp == null ? null : new EmployeeSummaryDto(
+                emp.getId(),
+                emp.getEmployeeCode(),
+                emp.getFullName(),
+                emp.getPosition() != null ? emp.getPosition() : "",
+                emp.getAvatarUrl() != null ? emp.getAvatarUrl() : ""
+        );
+        return new PayrollDto(
+                p.getId(),
+                empDto,
+                p.getMonth(),
+                p.getYear(),
+                p.getBaseSalary(),
+                p.getStandardWorkDays(),
+                p.getStandardWorkDays(),   // totalWorkDays alias
+                p.getActualWorkDays(),
+                p.getPaidLeaveDays(),
+                p.getOvertimeHours(),
+                p.getOvertimeRate(),
+                p.getAllowance(),
+                p.getDeduction(),
+                p.getDeduction(),          // deductions alias
+                p.getNetSalary(),
+                p.getStatus(),
+                p.getNote(),
+                p.getPaidDate() != null ? p.getPaidDate().toString() : null
+        );
+    }
+
+    public List<PayrollDto> toDtoList(List<Payroll> list) {
+        return list.stream().map(this::toDto).toList();
     }
 }

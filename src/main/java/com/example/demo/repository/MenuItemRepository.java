@@ -30,4 +30,7 @@ public interface MenuItemRepository extends JpaRepository<MenuItem, Long> {
 
     @Query("SELECT COUNT(m) FROM MenuItem m WHERE m.category.cafe = :cafe AND m.available = true")
     long countByCafeAndAvailable(@Param("cafe") Cafe cafe);
+
+    @Query("SELECT m FROM MenuItem m WHERE m.category.cafe = :cafe AND m.bestSeller = true")
+    List<MenuItem> findBestSellersByCafe(@Param("cafe") Cafe cafe);
 }

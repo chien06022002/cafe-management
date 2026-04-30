@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "categories")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 @NoArgsConstructor
 public class Category {
@@ -26,6 +28,7 @@ public class Category {
     @JoinColumn(name = "cafe_id")
     private Cafe cafe;
 
+    @JsonIgnoreProperties({"category", "sops"})
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<MenuItem> menuItems;
 }

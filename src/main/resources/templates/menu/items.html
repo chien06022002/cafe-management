@@ -15,6 +15,27 @@
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
+    <!-- Best Sellers Section -->
+    <div th:if="${bestSellers != null and !bestSellers.isEmpty()}" class="card mb-4" style="border-left: 4px solid #f59e0b;">
+      <div class="card-header py-3" style="background: linear-gradient(135deg, #fffbeb, #fef3c7);">
+        <span class="fw-bold text-warning"><i class="fas fa-star me-2"></i>Món Bán Chạy (Best Seller)</span>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div th:each="item : ${bestSellers}" class="col-6 col-md-3 col-lg-2">
+            <div class="text-center p-2 rounded-3" style="background:#fffbeb; border:1px solid #fcd34d;">
+              <img th:if="${item.imageUrl}" th:src="${item.imageUrl}" class="rounded-3 mb-2"
+                   style="width:100%;height:80px;object-fit:cover;" alt=""/>
+              <div class="fw-semibold small text-truncate" th:text="${item.name}">-</div>
+              <div class="text-success small fw-bold"
+                   th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">-</div>
+              <span class="badge mt-1" style="background:#f59e0b;"><i class="fas fa-star me-1"></i>Best Seller</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="card">
       <div class="card-header py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
         <span><i class="fas fa-utensils me-2 text-primary"></i>Danh Sách Món Ăn &amp; Đồ Uống</span>
@@ -56,7 +77,12 @@
             </thead>
             <tbody>
               <tr th:each="item : ${items}">
-                <td class="ps-4 fw-semibold" th:text="${item.name}">-</td>
+                <td class="ps-4 fw-semibold">
+                  <span th:text="${item.name}">-</span>
+                  <span th:if="${item.bestSeller}" class="badge ms-1" style="background:#f59e0b;font-size:.7rem;">
+                    <i class="fas fa-star me-1"></i>Best Seller
+                  </span>
+                </td>
                 <td>
                   <span class="badge bg-secondary rounded-pill"
                         th:text="${item.category != null ? item.category.name : 'Chưa phân loại'}">-</span>
